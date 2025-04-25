@@ -1,37 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>个人信用贷款额度估算器</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个贷估算器</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; padding: 20px; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 8px; margin-top: 5px; }
-        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; }
-        #result { margin-top: 20px; font-size: 1.2em; }
+        /* 基础重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* 整体容器 */
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 主卡片样式 */
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #2d3436;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        /* 输入组样式 */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #636e72;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            border-color: #4dabf7;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
+        }
+
+        /* 按钮样式 */
+        .calculate-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, #4dabf7 0%, #2d8cf0 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .calculate-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(45, 140, 240, 0.3);
+        }
+
+        /* 结果展示 */
+        #result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .amount {
+            color: #2d8cf0;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .calculator-card {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            input {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+            
+            .calculate-btn {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>个人信用贷款额度估算器</h2>
-    <div class="input-group">
-        <label>公积金单边月缴额（元）：</label>
-        <input type="number" id="income" required>
+    <div class="calculator-card">
+        <h1>个贷估算器</h1>
+        
+        <div class="input-group">
+            <label for="income">公积金单边月缴额（元）</label>
+            <input type="number" id="income" placeholder="请输入您的月缴额" inputmode="numeric">
+        </div>
+
+        <div class="input-group">
+            <label for="debt">当前信用负债余额（元）</label>
+            <input type="number" id="debt" placeholder="请输入您的负债余额" inputmode="numeric">
+        </div>
+
+        <button class="calculate-btn" onclick="calculate()">立即测算额度</button>
+
+        <div id="result"></div>
     </div>
-    <div class="input-group">
-        <label>负债余额（元）：</label>
-        <input type="number" id="debt" required>
-    </div>
-    <button onclick="calculate()">立即计算</button>
-    <div id="result"></div>
 
     <script>
-    function calculate() {
-        const income = parseFloat(document.getElementById('income').value);
-        const debt = parseFloat(document.getElementById('debt').value);
-        const amount = ((income / 0.14)*12*2 - debt).toFixed(2);
-        document.getElementById('result').innerHTML = 
-            `您的可贷额度为：<span style="color:#007bff">${amount}元</span>`;
-    }
+        function calculate() {
+            // 获取输入值
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const debt = parseFloat(document.getElementById('debt').value) || 0;
+
+            // 计算逻辑
+            const amount = ((income /0.14)*24 - debt).toFixed(2);
+            
+            // 结果展示
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = `
+                <div>根据测算，您的可贷额度为：</div>
+                <div class="amount">¥${amount}</div>
+                <div style="color: #636e72; font-size: 0.9rem;">* 该结果为预估值，实际额度以审批为准</div>
+            `;
+
+            // 添加动画
+            resultElement.style.animation = 'none';
+            setTimeout(() => {
+                resultElement.style.animation = 'fadeIn 0.5s ease';
+            }, 10);
+        }
+
+        // 输入验证
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9.]/g, '');
+            });
+        });
     </script>
 </body>
 </html>
